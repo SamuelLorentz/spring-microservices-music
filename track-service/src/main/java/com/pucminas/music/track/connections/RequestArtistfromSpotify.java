@@ -7,7 +7,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import com.google.gson.Gson;
+import com.pucminas.music.track.exceptions.ArtistException;
 import com.pucminas.music.track.model.Artist;
 import com.pucminas.music.track.utils.ArtistList;
 import com.pucminas.music.track.utils.TrackList;
@@ -15,6 +18,9 @@ import com.pucminas.music.track.utils.TrackList;
 public class RequestArtistfromSpotify {
 
 	private static String artistURI = "https://api.spotify.com/v1/artists";
+	private static String getERROR = "GET request not worked";
+
+	static Logger log = Logger.getLogger(RequestArtistfromSpotify.class.getName());
 
 	/**
 	 * Return a Artist by his Id
@@ -26,17 +32,20 @@ public class RequestArtistfromSpotify {
 	 * @return
 	 * @throws Exception
 	 */
-	public Artist getArtistbyId(String token, String query) throws Exception {
+	public Artist getArtistbyId(String token, String query) throws ArtistException {
 
-		HttpURLConnection con = getConnection(token, "/" + query);
+		try {
+			HttpURLConnection con = getConnection(token, "/" + query);
 
-		if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
-			return new Gson().fromJson(readResponse(con).toString(), Artist.class);
-		} else {
-			System.out.println("GET request not worked");
-			return null;
+			if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
+				return new Gson().fromJson(readResponse(con).toString(), Artist.class);
+			} else {
+				log.info(getERROR);
+				return null;
+			}
+		} catch (Exception e) {
+			throw new ArtistException();
 		}
-
 	}
 
 	/**
@@ -48,21 +57,22 @@ public class RequestArtistfromSpotify {
 	 * @return
 	 * @throws Exception
 	 */
-	public ArtistList getSeveralArtistsById(String token, List<String> ArtistIds) throws Exception {
+	public ArtistList getSeveralArtistsById(String token, List<String> artistIds) throws ArtistException {
 
-		HttpURLConnection con = getConnection(token, getArtistParams(ArtistIds).toString());
+		try {
+			HttpURLConnection con = getConnection(token, getArtistParams(artistIds).toString());
 
-		if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
-			ArtistList ArtistList = new Gson().fromJson(readResponse(con).toString(), ArtistList.class);
-			return ArtistList;
-
-		} else {
-			System.out.println("GET request not worked");
-			return null;
+			if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
+				return new Gson().fromJson(readResponse(con).toString(), ArtistList.class);
+			} else {
+				log.info(getERROR);
+				return null;
+			}
+		} catch (Exception e) {
+			throw new ArtistException();
 		}
-
 	}
-	
+
 	/**
 	 * Return several Artists by their Ids
 	 * 
@@ -74,32 +84,33 @@ public class RequestArtistfromSpotify {
 	 * @return
 	 * @throws Exception
 	 */
-	public TrackList getArtistTopTracks(String token, String artistId, String country) throws Exception {
+	public TrackList getArtistTopTracks(String token, String artistId, String country) throws ArtistException {
 
-		HttpURLConnection con = getConnection(token, getArtistTopTracks("/" + artistId, country).toString());
+		try {
+			HttpURLConnection con = getConnection(token, getArtistTopTracks("/" + artistId, country).toString());
 
-		if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
-			TrackList trackList = new Gson().fromJson(readResponse(con).toString(), TrackList.class);
-			return trackList;
-
-		} else {
-			System.out.println("GET request not worked");
-			return null;
+			if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
+				return new Gson().fromJson(readResponse(con).toString(), TrackList.class);
+			} else {
+				log.info(getERROR);
+				return null;
+			}
+		} catch (Exception e) {
+			throw new ArtistException();
 		}
-
 	}
-	
+
 	/**
-	 * Returns a StringBuffer with the JSON as a String from the URI 
+	 * Returns a StringBuilder with the JSON as a String from the URI
 	 * 
 	 * @param con
 	 * @return
 	 * @throws IOException
 	 */
-	private StringBuffer readResponse(HttpURLConnection con) throws IOException {
+	private StringBuilder readResponse(HttpURLConnection con) throws IOException {
 		BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
 		String inputLine;
-		StringBuffer response = new StringBuffer();
+		StringBuilder response = new StringBuilder();
 
 		while ((inputLine = in.readLine()) != null) {
 			response.append(inputLine);
@@ -115,20 +126,20 @@ public class RequestArtistfromSpotify {
 	 * @param market
 	 * @return
 	 */
-	private StringBuilder getArtistParams(List<String> ArtistIds) {
-		StringBuilder ArtistParams = new StringBuilder();
-		ArtistParams.append("?ids=");
+	private StringBuilder getArtistParams(List<String> artistIds) {
+		StringBuilder artistParams = new StringBuilder();
+		artistParams.append("?ids=");
 		int count = 0;
-		for (String id : ArtistIds) {
+		for (String id : artistIds) {
 			if (count == 0) {
-				ArtistParams.append(id);
+				artistParams.append(id);
 				count++;
 			} else {
-				ArtistParams.append("%" + id);
+				artistParams.append("%" + id);
 			}
 		}
 
-		return ArtistParams;
+		return artistParams;
 	}
 
 	/**
@@ -139,12 +150,12 @@ public class RequestArtistfromSpotify {
 	 * @param market
 	 * @return
 	 */
-	private StringBuilder getArtistTopTracks(String ArtistId, String country) {
+	private StringBuilder getArtistTopTracks(String artistId, String country) {
 		StringBuilder params = new StringBuilder();
-		params.append(ArtistId + "/top-tracks?country=" + country);
+		params.append(artistId + "/top-tracks?country=" + country);
 		return params;
 	}
-	
+
 	/**
 	 * Create a curl Get request for the Spotify Artist endpoints: Artists/{id} and
 	 * Artists (with id parameters)
@@ -163,10 +174,10 @@ public class RequestArtistfromSpotify {
 			con.setRequestProperty("Content-Type", "application/json");
 			con.setRequestProperty("Authorization", "Bearer " + token);
 			con.setRequestProperty("Accept", "application/json");
-			System.out.println("GET Response Code :: " + con.getResponseCode());
+			log.info("GET Response Code :: " + con.getResponseCode());
 			return con;
 		} catch (IOException e) {
-			System.out.println("*** ARTIST REQUEST ERROR ***");
+			log.info("*** ARTIST REQUEST ERROR ***");
 			e.printStackTrace();
 			return null;
 		}

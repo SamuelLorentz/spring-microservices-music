@@ -7,13 +7,19 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import com.google.gson.Gson;
+import com.pucminas.music.track.exceptions.TrackException;
 import com.pucminas.music.track.model.Track;
 import com.pucminas.music.track.utils.TrackList;
 
 public class RequestTrackfromSpotify {
 
 	private static String trackURI = "https://api.spotify.com/v1/tracks";
+	private static String getERROR = "GET request not worked";
+
+	static Logger log = Logger.getLogger(RequestTrackfromSpotify.class.getName());
 
 	/**
 	 * Return a track by it's Id
@@ -21,28 +27,32 @@ public class RequestTrackfromSpotify {
 	 * @param token
 	 * @param trackId
 	 * @return
-	 * @throws Exception
+	 * @throws IOException
 	 */
-	public Track getTrackbyId(String token, String trackId) throws Exception {
+	public Track getTrackbyId(String token, String trackId) throws TrackException {
 
-		HttpURLConnection con = getConnection(token, "/" + trackId);
+		try {
+			HttpURLConnection con = getConnection(token, "/" + trackId);
 
-		if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
-			BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-			String inputLine;
-			StringBuffer response = new StringBuffer();
-			while ((inputLine = in.readLine()) != null) {
-				response.append(inputLine);
+			if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
+				BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+				String inputLine;
+				StringBuilder response = new StringBuilder();
+				while ((inputLine = in.readLine()) != null) {
+					response.append(inputLine);
+				}
+				in.close();
+
+				return new Gson().fromJson(response.toString(), Track.class);
+
+			} else {
+				log.info(getERROR);
 			}
-			in.close();
 
-			return new Gson().fromJson(response.toString(), Track.class);
-
-		} else {
-			System.out.println("GET request not worked");
+			return null;
+		} catch (Exception e) {
+			throw new TrackException();
 		}
-
-		return null;
 	}
 
 	/**
@@ -52,33 +62,37 @@ public class RequestTrackfromSpotify {
 	 * @param trackIds
 	 * @param market
 	 * @return
-	 * @throws Exception
+	 * @throws IOException
 	 */
-	public TrackList getSeveralTracksById(String token, List<String> trackIds, String market) throws Exception {
+	public TrackList getSeveralTracksById(String token, List<String> trackIds, String market) throws TrackException {
 
-		HttpURLConnection con = getConnection(token, getTrackParams(trackIds, market).toString());
+		try {
+			HttpURLConnection con = getConnection(token, getTrackParams(trackIds, market).toString());
 
-		if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
-			BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-			String inputLine;
-			StringBuffer response = new StringBuffer();
+			if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
+				BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+				String inputLine;
+				StringBuilder response = new StringBuilder();
 
-			while ((inputLine = in.readLine()) != null) {
-				response.append(inputLine);
+				while ((inputLine = in.readLine()) != null) {
+					response.append(inputLine);
+				}
+				in.close();
+
+				log.info(response.toString());
+
+				return new Gson().fromJson(response.toString(), TrackList.class);
+
+			} else {
+				log.info(getERROR);
 			}
-			in.close();
 
-			// print result
-			System.out.println(response.toString());
-
-			TrackList trackList = new Gson().fromJson(response.toString(), TrackList.class);
-			return trackList;
-
-		} else {
-			System.out.println("GET request not worked");
+			return null;
+			
+		} catch (Exception e) {
+			throw new TrackException();
 		}
 
-		return null;
 	}
 
 	/**
@@ -120,10 +134,10 @@ public class RequestTrackfromSpotify {
 			con.setRequestProperty("Content-Type", "application/json");
 			con.setRequestProperty("Authorization", "Bearer " + token);
 			con.setRequestProperty("Accept", "application/json");
-			System.out.println("GET Response Code :: " + con.getResponseCode());
+			log.info("GET Response Code :: " + con.getResponseCode());
 			return con;
 		} catch (IOException e) {
-			System.out.println("*** TRACK REQUEST ERROR ***");
+			log.info("*** TRACK REQUEST ERROR ***");
 			e.printStackTrace();
 			return null;
 		}
@@ -133,7 +147,7 @@ public class RequestTrackfromSpotify {
 	// 2CIMQHirSU0MQqyYHq0eOx
 	// 57dN52uHvrHOxijzpIgu3E
 	// 1vCWHaC5f2uS3yhpwWbIA6
-	
+
 	// Tracks
 	// 2nLgWMdYPO35GGpwX2xo23
 	// 4ua0IepBEISCWwF8dTJvcU
@@ -145,5 +159,5 @@ public class RequestTrackfromSpotify {
 	// 5eXAwRzk8mBnLilhGLVLOF
 	// 2vPlEZrLXYhZkMzEFyfroi
 	// 2edcAWwKM7SQajsFGP0edC
-	
+
 }

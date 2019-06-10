@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.pucminas.music.track.connections.RequestTrackfromSpotify;
+import com.pucminas.music.track.exceptions.TrackException;
 import com.pucminas.music.track.model.Track;
 import com.pucminas.music.track.model.dto.TrackDTO;
 import com.pucminas.music.track.utils.TrackList;
@@ -20,7 +21,7 @@ public class TrackService {
 	 * @return
 	 * @throws Exception
 	 */
-	public TrackDTO getTrackById(String token, String trackId) throws Exception {
+	public TrackDTO getTrackById(String token, String trackId) throws TrackException {
 		Track track = getRequest().getTrackbyId(token, trackId);
 		return new TrackDTO(track.getId(), track.getName(), track.getType());
 	}
@@ -34,7 +35,7 @@ public class TrackService {
 	 * @return
 	 * @throws Exception
 	 */
-	public TrackList getSeveralTracks(String token, List<String> trackIds, String market) throws Exception {
+	public TrackList getSeveralTracks(String token, List<String> trackIds, String market) throws TrackException {
 		return getRequest().getSeveralTracksById(token, trackIds, market);
 	}
 

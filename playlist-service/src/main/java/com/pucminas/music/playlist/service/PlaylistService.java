@@ -7,6 +7,8 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -29,7 +31,7 @@ public class PlaylistService {
 
 	private final RestTemplate restTemplate;
 
-	private final EurekaService eurekaService;
+	private final DiscoveryClient discoveryClient;
 
 	@Value("TRACK-SERVICE")
 	private String trackServiceId;
@@ -39,11 +41,11 @@ public class PlaylistService {
 
 	@Autowired
 	public PlaylistService(PlaylistRepository playlistRepository, TrackRepository trackRepository,
-			RestTemplate restTemplate, EurekaService eurekaService) {
+			RestTemplate restTemplate, DiscoveryClient discoveryClient) {
 		this.playlistRepository = playlistRepository;
 		this.trackRepository = trackRepository;
 		this.restTemplate = restTemplate;
-		this.eurekaService = eurekaService;
+		this.discoveryClient = discoveryClient;
 	}
 
 	/**
@@ -217,9 +219,27 @@ public class PlaylistService {
 	 * @return
 	 */
 	private String getRequest(TrackBody trackId) {
-		URI uri = eurekaService.getInstance(trackServiceId);
+		URI uri = getInstance(trackServiceId);
 		return uri.toString() + tracksEndpointUri + "?token=" + trackId.getToken() + "&trackId=" + trackId.getTrackId()
 				+ "&market=" + trackId.getMarket();
+	}
+	
+	/**
+	 * Discover TrackService instance
+	 * 
+	 * @param serviceId
+	 * @return
+	 */
+	public URI getInstance(String serviceId) {
+
+		List<ServiceInstance> instances = discoveryClient.getInstances(serviceId);
+
+		if (instances != null && !instances.isEmpty()) {
+			return instances.get(0).getUri();
+		}
+
+		return null;
+
 	}
 
 }

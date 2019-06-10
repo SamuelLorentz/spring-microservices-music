@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.pucminas.music.track.exceptions.TrackException;
 import com.pucminas.music.track.model.dto.TrackDTO;
 import com.pucminas.music.track.service.TrackService;
 import com.pucminas.music.track.utils.TrackList;
@@ -27,14 +28,14 @@ public class TrackController {
 
 	@GetMapping(path = "/track")
 	public ResponseEntity<TrackDTO> trackById(@RequestParam(value = "token") String token,
-										      @RequestParam(value = "trackId") String trackId) throws Exception {
+										      @RequestParam(value = "trackId") String trackId) throws TrackException {
 		return ResponseEntity.ok().body(trackService.getTrackById(token, trackId));
 	}
 
 	@GetMapping
 	public ResponseEntity<TrackList> getSeveralTracks(@RequestParam(value = "token") String token,
 													  @RequestParam(value = "trackIds") List<String> trackIds,
-													  @RequestParam(value = "market") String market) throws Exception {
+													  @RequestParam(value = "market") String market) throws TrackException {
 		TrackList listTracks = trackService.getSeveralTracks(token, trackIds, market);
 		return ResponseEntity.ok().body(listTracks);
 	}
