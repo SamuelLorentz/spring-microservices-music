@@ -13,6 +13,11 @@ import com.pucminas.music.track.model.dto.TrackDTO;
 import com.pucminas.music.track.service.TrackService;
 import com.pucminas.music.track.utils.TrackList;
 
+/**
+ * 
+ * @author LorentSB
+ *
+ */
 @RestController
 @RequestMapping(value = "/v1/tracks")
 public class TrackController {

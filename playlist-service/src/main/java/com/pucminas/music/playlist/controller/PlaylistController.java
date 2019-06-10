@@ -17,10 +17,17 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
+import com.pucminas.music.playlist.exception.InsertTrackException;
+import com.pucminas.music.playlist.exception.RatingOutOfBoundsException;
 import com.pucminas.music.playlist.model.Playlist;
 import com.pucminas.music.playlist.model.transfer.TrackBody;
 import com.pucminas.music.playlist.service.PlaylistService;
 
+/**
+ * 
+ * @author LorentSB
+ *
+ */
 @RestController
 @RequestMapping(value = "/v1/playlists")
 public class PlaylistController {
@@ -48,21 +55,29 @@ public class PlaylistController {
 		return ResponseEntity.created(uri).build();
 	}
 
-	@PutMapping(value = "/{id}/rate/{rating}")
-	public ResponseEntity<Playlist> ratePlaylist(@PathVariable Integer id, @PathVariable Integer rating) throws Exception {
+	@PutMapping(value = "/{id}/rating/{rating}")
+	public ResponseEntity<Playlist> ratePlaylist(@PathVariable Integer id, @PathVariable Integer rating) throws RatingOutOfBoundsException {
 		Playlist playlist = playlistService.ratePlaylist(id, rating);
 		return ResponseEntity.ok().body(playlist);
 	}
 
-	@PutMapping(value = "/{id}/insert")
-	@HystrixCommand(fallbackMethod = "fallback_track", commandProperties = {
+	@PutMapping(value = "/{id}/track")
+	@HystrixCommand(fallbackMethod = "fallbackTrack", commandProperties = {
 			@HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "1000") })
-	public ResponseEntity<Playlist> insertTrackInPlaylist(@PathVariable Integer id, @RequestBody TrackBody trackBody){
+	public ResponseEntity<Playlist> insertTrackInPlaylist(@PathVariable Integer id, @RequestBody TrackBody trackBody) throws InsertTrackException{
 		Playlist playlist = playlistService.insertTrackInPlaylist(id, trackBody);
 		return ResponseEntity.ok().body(playlist);
 	}
+	
+	@PutMapping(value = "/{id}/tracks")
+	@HystrixCommand(fallbackMethod = "fallbackTrack", commandProperties = {
+			@HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "1000") })
+	public ResponseEntity<Playlist> insertTrackInPlaylist(@PathVariable Integer id, @RequestBody List<TrackBody> trackBodies) throws InsertTrackException{
+		Playlist playlist = playlistService.insertListOfTracksInPlaylist(id, trackBodies);
+		return ResponseEntity.ok().body(playlist);
+	}
 
-	@PutMapping(value = "/{id}/remove/{trackId}")
+	@DeleteMapping(value = "/{id}/track/{trackId}")
 	public ResponseEntity<Playlist> deleteTrackInPlaylist(@PathVariable Integer id, @PathVariable String trackId) {
 		Playlist playlist = playlistService.deleteTrackInPlaylist(id, trackId);
 		return ResponseEntity.ok().body(playlist);
@@ -74,7 +89,7 @@ public class PlaylistController {
 	}
 
 	@SuppressWarnings("unused")
-	private String fallback_track() {
+	private String fallbackTrack() {
 		return "Request fails. It takes long time to response";
 	}
 	
