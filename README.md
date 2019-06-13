@@ -1,6 +1,6 @@
 # spring-microservices-music
 
--Obedece as melhores práticas de montagem de APIs RESTful:
+- Obedece as melhores práticas de montagem de APIs RESTful:
 
   1. Organização das APIs ao longo de recursos.
   2. APIs Padronizadas. 
@@ -15,3 +15,4 @@ dados que ela expõe.
 - Circuit Breaking (Hystrix no playlist-service)
 - Uso do API Gateway - spring-cloud-gateway
 - Eureka Discovery
+- Ligação com a API Spotify via token de usuário
