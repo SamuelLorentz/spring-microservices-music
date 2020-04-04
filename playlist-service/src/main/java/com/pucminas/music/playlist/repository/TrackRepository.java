@@ -8,5 +8,5 @@ import com.pucminas.music.playlist.model.Track;
 @Repository
 public interface TrackRepository extends CrudRepository<Track, String> {
 
-	 public Track findByTrackId(String trackId);
+	 Track findByTrackId(String trackId);
 }

@@ -1,33 +1,20 @@
 package com.pucminas.music.playlist.controller;
 
-import java.net.URI;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import com.pucminas.music.playlist.exception.InsertTrackException;
 import com.pucminas.music.playlist.exception.RatingOutOfBoundsException;
 import com.pucminas.music.playlist.model.Playlist;
-import com.pucminas.music.playlist.model.transfer.TrackBody;
 import com.pucminas.music.playlist.service.PlaylistService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-/**
- * 
- * @author LorentSB
- *
- */
+import java.net.URI;
+import java.util.List;
+
+import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentRequest;
+
 @RestController
 @RequestMapping(value = "/v1/playlists")
 public class PlaylistController {
@@ -35,23 +22,20 @@ public class PlaylistController {
 	@Autowired
 	private PlaylistService playlistService;
 
-	@GetMapping(value = "/{id}")
-	public ResponseEntity<Playlist> getPlaylistById(@PathVariable Integer id){
-		Playlist playlist = playlistService.getPlaylistById(id);
-		return ResponseEntity.ok().body(playlist);
-	}
-
 	@GetMapping
 	public ResponseEntity<List<Playlist>> getAllPlaylists(){
-		List<Playlist> playlists = playlistService.getAllPlaylists();
-		return ResponseEntity.ok().body(playlists);
+		return ResponseEntity.ok().body(playlistService.getAllPlaylists());
+	}
+
+	@GetMapping(value = "/{id}")
+	public ResponseEntity<Playlist> getPlaylistById(@PathVariable Integer id){
+		return ResponseEntity.ok().body(playlistService.getPlaylistById(id));
 	}
 
 	@PostMapping
-	public ResponseEntity<Playlist> createPlaylist() {
-		Playlist playlist = playlistService.createPlaylist();
-		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(playlist.getId())
-				.toUri();
+	public ResponseEntity<Playlist> createPlaylist(Playlist playlist) {
+		playlist = playlistService.createPlaylist(playlist);
+		URI uri = fromCurrentRequest().path("/{id}").buildAndExpand(playlist.getId()).toUri();
 		return ResponseEntity.created(uri).build();
 	}
 
@@ -92,5 +76,5 @@ public class PlaylistController {
 	private String fallbackTrack() {
 		return "Request fails. It takes long time to response";
 	}
-	
+
 }

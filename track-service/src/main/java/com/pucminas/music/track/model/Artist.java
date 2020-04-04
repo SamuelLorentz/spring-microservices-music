@@ -1,5 +1,14 @@
 package com.pucminas.music.track.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Artist {
 
 	private String id;
@@ -8,53 +17,4 @@ public class Artist {
 	private String uri;
 	private String href;
 	private ExternalUrl external_urls;
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getType() {
-		return type;
-	}
-
-	public void setType(String type) {
-		this.type = type;
-	}
-
-	public String getUri() {
-		return uri;
-	}
-
-	public void setUri(String uri) {
-		this.uri = uri;
-	}
-
-	public String getHref() {
-		return href;
-	}
-
-	public void setHref(String href) {
-		this.href = href;
-	}
-
-	public ExternalUrl getExternal_urls() {
-		return external_urls;
-	}
-
-	public void setExternal_urls(ExternalUrl external_urls) {
-		this.external_urls = external_urls;
-	}
-
 }

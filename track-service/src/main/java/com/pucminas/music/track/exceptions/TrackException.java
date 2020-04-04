@@ -4,7 +4,7 @@ public class TrackException extends Exception {
 
 	private static final long serialVersionUID = 1L;
 
-	public TrackException() {
-		super("Error at API Call, or Invalid Token.");
+	public TrackException(Exception e) {
+		super("Error at API Call, or Invalid Token.", e);
 	}
 }

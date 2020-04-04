@@ -4,7 +4,7 @@ public class ArtistException extends Exception {
 
 	private static final long serialVersionUID = 1L;
 
-	public ArtistException() {
-		super("Error at API Call, or Invalid Token.");
+	public ArtistException(Exception e) {
+		super("Error at API Call, or Invalid Token.", e);
 	}
 }

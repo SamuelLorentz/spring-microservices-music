@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/ApiGateway/ApiGateway.iml" filepath="$PROJECT_DIR$/ApiGateway/ApiGateway.iml" />
+      <module fileurl="file://$PROJECT_DIR$/discovery-service/discovery-service.iml" filepath="$PROJECT_DIR$/discovery-service/discovery-service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/playlist-service/playlist-service.iml" filepath="$PROJECT_DIR$/playlist-service/playlist-service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/spring-microservices-music.iml" filepath="$PROJECT_DIR$/spring-microservices-music.iml" />
+      <module fileurl="file://$PROJECT_DIR$/track-service/track-service.iml" filepath="$PROJECT_DIR$/track-service/track-service.iml" />
+    </modules>
+  </component>
+</project>
